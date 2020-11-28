@@ -1,8 +1,5 @@
-re
 pandas
 numpy
 ast
 pickle
-datetime
 nltk
-pkg_resources
