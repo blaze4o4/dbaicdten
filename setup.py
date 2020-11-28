@@ -12,7 +12,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/blaze4o4/dbaicdten",
-    download_url="https://github.com/blaze4o4/dbaicdten/archive/0.1.tar.gz",
+    download_url="https://github.com/blaze4o4/dbaicdten/archive/0.0.1.tar.gz",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
