@@ -24,8 +24,8 @@ def memoize(func):
 
 class ICD10:
     def __init__(self):
-        data_file = pkg_resources.resource_filename('icd10.resources', "dba_icd10.csv")
-        vocabulary_file = pkg_resources.resource_filename('icd10.resources', "vocab_list.pkl")
+        data_file = pkg_resources.resource_filename('dbaicd10.resources', "dba_icd10.csv")
+        vocabulary_file = pkg_resources.resource_filename('dbaicd10.resources', "vocab_list.pkl")
 
         ## setting data and vocabulary
         self.data = pd.read_csv(data_file)
@@ -193,7 +193,3 @@ class ICD10:
 
         return self.data.loc[result.nlargest(return_top_n, keep='first').index]
 
-
-if __name__ == '__main__':
-    i = ICD10()
-    print(i.search('tennis elbo'))
