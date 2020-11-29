@@ -1,0 +1,2 @@
+include dbaicd10/resources/dba_icd10.csv
+include dbaicd10/resources/vocab_list.pkl

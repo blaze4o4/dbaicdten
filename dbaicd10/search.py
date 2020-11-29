@@ -22,6 +22,22 @@ def memoize(func):
 
     return memoizer
 
+@memoize
+def levenshtein( s, t):
+    if s == "" or t == "":
+        return max(len(s), len(t))
+
+    if s[-1] == t[-1]:
+        cost = 0
+    else:
+        cost = 1
+
+    res = min([levenshtein(s[:-1], t) + 1,
+               levenshtein(s, t[:-1]) + 1,
+               levenshtein(s[:-1], t[:-1]) + cost])
+    # print(res)
+    return res
+
 class ICD10:
     def __init__(self):
         data_file = pkg_resources.resource_filename('dbaicd10.resources', "dba_icd10.csv")
@@ -29,6 +45,15 @@ class ICD10:
 
         ## setting data and vocabulary
         self.data = pd.read_csv(data_file)
+        self.data['Approximate Synonyms'] = self.data['Approximate Synonyms']\
+                                                .apply(lambda x: ast.literal_eval(x))
+
+        self.data['Applicable To'] = self.data['Applicable To'] \
+            .apply(lambda x: ast.literal_eval(x))
+
+        self.data['Clinical Info'] = self.data['Clinical Info'] \
+            .apply(lambda x: ast.literal_eval(x))
+
         infile = open(vocabulary_file, 'rb')
         self.vocab_list = pickle.load(infile)
         infile.close()
@@ -37,21 +62,7 @@ class ICD10:
 
     # @memoize
     # @staticmethod
-    @memoize
-    def levenshtein(self, s, t):
-        if s == "" or t == "":
-            return max(len(s), len(t))
 
-        if s[-1] == t[-1]:
-            cost = 0
-        else:
-            cost = 1
-
-        res = min([self.levenshtein(s[:-1], t) + 1,
-                   self.levenshtein(s, t[:-1]) + 1,
-                   self.levenshtein(s[:-1], t[:-1]) + cost])
-        # print(res)
-        return res
 
     def auto_correct(self, sentence, remove_stop_words=False, vocab=None, threshold=70):
         ## Preprocessing
@@ -75,7 +86,7 @@ class ICD10:
             distance = 9999
             best_match = None
             for vocab_word in vocab:
-                dist = self.levenshtein(vocab_word, word)
+                dist = levenshtein(vocab_word, word)
                 if dist < distance:
                     distance = dist
                     best_match = vocab_word
@@ -122,7 +133,7 @@ class ICD10:
         ## Step 3: Score of applicable two
         ## now search in Applicable To
         applicable_tos = row['Applicable To']
-        applicable_tos = ast.literal_eval(applicable_tos)
+        # applicable_tos = ast.literal_eval(applicable_tos)
         # print(applibable_tos[0])
         # for dk in
         #     synonyms = ast.literal_eval(synonyms)
@@ -146,7 +157,7 @@ class ICD10:
         ## STEP 4: Score of Clinical Info
         ## now search in Applicable To
         clinical_infos = row['Clinical Info']
-        clinical_infos = ast.literal_eval(clinical_infos)
+        # clinical_infos = ast.literal_eval(clinical_infos)
         #     print(synonyms)
         clinical_scores = [0] * len(clinical_infos)
 
@@ -171,7 +182,17 @@ class ICD10:
         return np.max([name_score, synonym_score, applicable_score, clinical_score])
 
     def search(self, keyword, auto_correct_keywords=True, show_time_spent=True, return_top_n=10):
-
+        '''
+        Search in ICD10 dataset for the provided keywords. It performs a simple match word search.
+        :param keyword: (String) keywords or sentence to search for. Keywords seperated by space
+        :param auto_correct_keywords: (Boolean: default=True) Keep it true for spell check of the given keywords
+        :param show_time_spent: (Boolean: default=True) Display time utilized for search
+        :param return_top_n: (integer: default:10) Returns the number of top results. Is set to 10 returns top 10 results
+        :return: Returns a pandas dataframe with top matches
+        use case:
+        search("Tennis elbow")
+        search("tennis elbo", auto_correct_keywords=True, return_top_n=5)
+        '''
         before = datetime.datetime.now()
 
         keywords = keyword.split()
@@ -189,7 +210,7 @@ class ICD10:
 
         diff = after - before
 
-        print("Search completed in", diff.seconds, "seconds")
+        if show_time_spent:
+            print("Search completed in", diff.seconds, "seconds")
 
         return self.data.loc[result.nlargest(return_top_n, keep='first').index]
-
