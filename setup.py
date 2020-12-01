@@ -5,7 +5,7 @@ with open("README.md", 'r') as fh:
 
 setuptools.setup(
     name="dbaicdten",
-    version="0.0.3",
+    version="0.0.1",
     author="Devyani Kulkarni",
     author_email="devyanikul12345@gmail.com",
     description="High level api for dbaicd10 code",
@@ -13,7 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     include_package_data=True,
     url="https://github.com/blaze4o4/dbaicdten",
-    download_url="https://github.com/blaze4o4/dbaicdten/archive/0.0.3.tar.gz",
+    download_url="https://github.com/blaze4o4/dbaicdten/archive/0.0.4.tar.gz",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
